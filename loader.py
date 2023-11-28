@@ -31,7 +31,7 @@ def load_mat():
 
     if path:
         data_dict = mat73.loadmat(path)
-        folder_name = os.path.dirname(path)
+        folder_name = os.path.basename(os.path.dirname(path))
         return data_dict, folder_name
     else:
         ctypes.windll.user32.MessageBoxW(0, "Please select the correct file path", "Path not found")
