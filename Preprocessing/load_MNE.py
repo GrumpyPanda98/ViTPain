@@ -31,6 +31,9 @@ montage_positions = [(x, y, 0) for x in range(4) for y in range(montage_ysize)]
 montage = mne.channels.make_dig_montage(ch_pos=dict(zip(ch_names, montage_positions), ))
 info.set_montage(montage) # Apply the montage to the info structure
 
+# Define the delays in seconds
+delays = np.array([0.07778, 4.422, 9.922, 53.91])/1000
+
 
 if folder == 'Experiment 09':
     baseAmp = np.concatenate([np.arange(20, 301, 20),
@@ -40,7 +43,8 @@ if folder == 'Experiment 09':
                               np.arange(5500, 7001, 500)]) 
     
     sweep1, sweep3 = [np.concatenate([baseAmp, np.arange(8000, limit, 1000)]) for limit in [16001, 10001]]
-    stimValues = np.concatenate([sweep1,sweep3])
+    sweeps = [sweep1, sweep3]
+    stimValues = np.concatenate(sweeps)
     
 else:
     baseAmp = np.concatenate([np.arange(0, 301, 50), 
@@ -50,18 +54,17 @@ else:
                               np.arange(5500, 7001, 500)])
     
     sweep1, sweep2, sweep3, sweep4 = [np.concatenate([baseAmp, np.arange(8000, limit, 1000)]) for limit in [16001, 12001, 10001, 15001]]
-    stimValues = np.concatenate([sweep1, sweep2, sweep3, sweep4])
+    sweeps = [sweep1, sweep2, sweep3, sweep4]
+    stimValues = np.concatenate(sweeps)
+
+# Repeat each delay for the corresponding sweep and repeat again four times
+delayVector = np.concatenate([np.repeat(delay, len(sweep)) for delay, sweep in zip(delays, sweeps)])
+delayVectorrep = np.tile(delayVector,4)
 
 # Repeat four times and create mask for events below 1000 mA in stimValues
 stimValuesrep = np.tile(stimValues,4)
 mask = stimValuesrep >= 1000
 
-# Define the delays in seconds
-delays = np.array([0.07778, 4.422, 9.922, 53.91])/1000
-
-# Repeat each delay for the corresponding sweep and repeat again four times
-delayVector = np.concatenate([np.repeat(delay, len(sweep)) for delay, sweep in zip(delays, [sweep1, sweep2, sweep3, sweep4])])
-delayVectorrep = np.tile(delayVector,4)
 
 # Mask and remove delay
 maskdel_cut = stim_times[0][mask]*fs-delayVectorrep[mask]
