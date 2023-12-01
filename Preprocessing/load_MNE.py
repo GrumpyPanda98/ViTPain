@@ -7,13 +7,15 @@ Created on Tue Nov  7 14:07:57 2023
 
 import numpy as np
 import mne
+import matplotlib.pyplot as plt
 
 from loader import load_mat
 
 
-#%% Load and structure data
-
+#%% Load data
 data, folder = load_mat()
+
+#%% Strcuture data and make MNE object
 
 # Extract necessary values from the dictionary
 data_continous = data['dataContinous'] # EEG data
@@ -27,6 +29,7 @@ info = mne.create_info(ch_names=ch_names,
 
 # Make simple montage for MEA
 montage_ysize = 4 if len(ch_names) == 16 else 8 # Determine montage size based on the length of ch_names
+# montage_positions = [(x*0.005-0.02, y*0.005, 0) for x in range(4) for y in range(montage_ysize)] # Alternative showing placement on head only for viz
 montage_positions = [(x, y, 0) for x in range(4) for y in range(montage_ysize)]
 montage = mne.channels.make_dig_montage(ch_pos=dict(zip(ch_names, montage_positions), ))
 info.set_montage(montage) # Apply the montage to the info structure
@@ -84,31 +87,56 @@ event_id = {'Cutaneous': 1, 'Motor': 2}
 #%% Create MNE Raw object
 raw = mne.io.RawArray(data_continous, info)
 
-# # Resample to 4000 Hz sampling frequency --> 10 x 200 Hz limit. ONLY FOR VISUALIZATION SPEED UP. RESAMPLE AFTER EPOCHING TO AVOID JITTERS
+# # Resample to 000 Hz sampling frequency --> 10 x 200 Hz limit. ONLY FOR VISUALIZATION SPEED UP. RESAMPLE AFTER EPOCHING TO AVOID JITTERS
 # raw = raw.resample(sfreq=2000, npad='auto', n_jobs=-1)
 
-# Compute PSD and Filter
-before=raw.compute_psd(method='welch', fmax=500, n_fft=20000, n_jobs=-1)
-before.plot()
-before.plot(average=True)
+# Compute PSD before applying filters
+before = raw.compute_psd(method='welch', fmax=300, n_fft=20000, n_jobs=-1)
 
 # Apply filters
-raw.notch_filter([50, 100, 150, 200],filter_length='auto', notch_widths=2, method='fir', n_jobs=-1)
-raw.filter(1, 200, l_trans_bandwidth=1, h_trans_bandwidth=10, method='fir', n_jobs = -1)
+raw.notch_filter([50, 100, 150, 200], filter_length='auto', notch_widths=2, method='fir', n_jobs=-1)
+raw.filter(1, 200, l_trans_bandwidth=1, h_trans_bandwidth=10, method='fir', n_jobs=-1)
 
-after=raw.compute_psd(method='welch', fmax=500, n_fft=20000, n_jobs=-1)
-after.plot()
-after.plot(average=True)
+# Compute PSD after applying filters
+after = raw.compute_psd(method='welch', fmax=300, n_fft=20000, n_jobs=-1)
+
+# Create figure
+fig, axes = plt.subplots(2, 1, figsize=(10, 6))
+fig.suptitle(f'{folder} - PSD ({before.info["nchan"]} channels)', fontsize=16)
+
+# Plot PSD before applying filters
+before.plot(average=False, axes=axes[0], show=False)
+axes[0].set_title('Before Filters')  # Adjust fontsize and pad parameters here
+# Plot PSD after applying filters
+after.plot(average=False, axes=axes[1], show=False)
+axes[1].set_title('After Filters')  # Adjust fontsize and pad parameters here
+for ax in axes:
+    ax.set_xlabel('Frequency (Hz)')
+
+fig.tight_layout()
+plt.show()
 
 #%% Create MNE epochs object
 
-epochs = mne.Epochs(raw, np.int64(np.rint(events)), event_id, baseline = (None,0), tmin = -0.2, tmax = 0.5, detrend = None, preload=True)
+epochs = mne.Epochs(raw, np.int64(np.rint(events)), event_id, tmin = -0.2, tmax = 0.5, detrend = None, preload=True)
 
 
-avg=epochs.average(by_event_type=True)
+evoked=epochs.average(by_event_type=True)
 
-_ = [i.plot(gfp=True) for i in avg]
+# %matplotlib inline
 
-epochs.plot(events=events)
+# Plot evoked responses for each event with custom titles
+fig, axes = plt.subplots(len(evoked), 1, figsize=(10, 6))
+fig.suptitle(f'{folder} - MEA ({evoked[0].info["nchan"]} channels)', x=0.53, fontsize=14)
+
+for event, ax in zip(evoked, axes):    
+    # Plotting evoked response
+    fig = event.plot(axes=ax, show=False)
+    ax.set_title(f'{event.comment}')
+
+fig.tight_layout()
+plt.show()
+
+# epochs.plot(events=events)
 
 
