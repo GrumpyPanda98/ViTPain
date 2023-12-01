@@ -20,21 +20,8 @@
 - `train_vit.py`: Script for training the Vision Transformer on EEG data.
 
 ## Usage
+**Work in Progress**
 
-1. **Data Preprocessing:**
-
-   ```bash
-   cd preprocessing/
-   python preprocessing_script.py
-   ```
-
-2. **Train Vision Transformer:**
-
-   ```bash
-   python train_vit.py
-   ```
-
-   (Ensure you have PyTorch and necessary dependencies installed)
 
 ## Dependencies
 
