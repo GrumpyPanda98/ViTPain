@@ -9,7 +9,7 @@ import numpy as np
 import mne
 import matplotlib.pyplot as plt
 
-from loader import load_mat
+from general.loader import load_mat
 
 
 #%% Load data
@@ -97,7 +97,7 @@ before = raw.compute_psd(method='welch', fmax=300, n_fft=20000, n_jobs=-1)
 raw.notch_filter([50, 100, 150, 200], filter_length='auto', notch_widths=2, method='fir', n_jobs=-1)
 raw.filter(1, 200, l_trans_bandwidth=1, h_trans_bandwidth=10, method='fir', n_jobs=-1)
 
-# Compute PSD after applying filters
+# # Compute PSD after applying filters
 after = raw.compute_psd(method='welch', fmax=300, n_fft=20000, n_jobs=-1)
 
 # Create figure
@@ -106,10 +106,12 @@ fig.suptitle(f'{folder} - PSD ({before.info["nchan"]} channels)', fontsize=16)
 
 # Plot PSD before applying filters
 before.plot(average=False, axes=axes[0], show=False)
-axes[0].set_title('Before Filters')  # Adjust fontsize and pad parameters here
+axes[0].set_title('Before Filters') 
+
 # Plot PSD after applying filters
 after.plot(average=False, axes=axes[1], show=False)
-axes[1].set_title('After Filters')  # Adjust fontsize and pad parameters here
+axes[1].set_title('After Filters')  
+
 for ax in axes:
     ax.set_xlabel('Frequency (Hz)')
 
