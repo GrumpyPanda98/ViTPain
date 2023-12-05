@@ -41,3 +41,5 @@ pip install -r requirements.txt
 - Incorporate Vision Transformer (ViT) for deep learning analysis.
 - Explore additional deep learning models and techniques.
 - Enhance preprocessing steps for better model performance.
+- Implement autoreject for handling bad channels, potentially using RANSAC.
+- Utilize transfer learning on the Vision Transformer for improved results.
