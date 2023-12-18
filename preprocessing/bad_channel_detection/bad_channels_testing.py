@@ -41,7 +41,7 @@ print('\n'.join(rsc.bad_chs_))
 epochs_RANSAC.plot(events=epochs_RANSAC.events, use_opengl = True)
 
 
-#%% Plot evoked response 
+#%% Plot evoked response side by side
 evoked_raw = epochs.average(by_event_type=True)
 evoked_RANSAC= epochs_RANSAC.average(by_event_type=True)
 
@@ -50,20 +50,36 @@ folder = os.path.basename(path[0])
 
 # Plot evoked responses for each event side by side with custom titles
 fig, axes = plt.subplots(2, 2, figsize=(15, 10))
-fig.suptitle(f'{folder[:-8]} - MEA ({evoked_raw[0].info["nchan"]} channels)', x=0.53, fontsize=14)
+fig.suptitle(f'{folder[:-8]} - MEA ({evoked_raw[0].info["nchan"]} channels)', x=0.53, fontsize=16)
 
 # Plotting evoked responses for raw data
 for i, event in enumerate(evoked_raw):
     event.plot(axes=axes[i, 0], show=False)
-    axes[i, 0].set_title(f'Raw - {event.comment}')
+    axes[i, 0].set_title(f'Filtered - {event.comment}')
 
 # Plotting evoked responses for RANSAC data
 for i, event in enumerate(evoked_RANSAC):
     event.plot(axes=axes[i, 1], show=False)
-    axes[i, 1].set_title(f'RANSAC - {event.comment}')
+    axes[i, 1].set_title(f'Filtered + RANSAC - {event.comment}')
 
-fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+fig.tight_layout()
 plt.show()
+
+#%% Plot evoked response seperately
+
+# Plot evoked responses for each event with custom titles
+
+for evoked in [evoked_raw, evoked_RANSAC]:
+    fig, axes = plt.subplots(len(evoked), 1, figsize=(10, 6))
+    fig.suptitle(f'{folder[:-8]} - MEA ({evoked[0].info["nchan"]} channels)', x=0.53, fontsize=14)
+    
+    for event, ax in zip(evoked, axes):    
+        # Plotting evoked response
+        fig = event.plot(axes=ax, show=False)
+        ax.set_title(f'{event.comment}')
+    
+    fig.tight_layout()
+    plt.show()
 
 
 #%% Heatmap for bad channels
