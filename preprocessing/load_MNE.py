@@ -87,7 +87,7 @@ event_id = {'Cutaneous': 1, 'Motor': 2}
 #%% Create MNE Raw object
 raw = mne.io.RawArray(data_continous, info)
 
-# # Resample to 000 Hz sampling frequency --> 10 x 200 Hz limit. ONLY FOR VISUALIZATION SPEED UP. RESAMPLE AFTER EPOCHING TO AVOID JITTERS
+# # Resample to 2000 Hz sampling frequency --> 10 x 200 Hz limit. ONLY FOR VISUALIZATION SPEED UP. RESAMPLE AFTER EPOCHING TO AVOID JITTERS
 # raw = raw.resample(sfreq=2000, npad='auto', n_jobs=-1)
 
 # Compute PSD before applying filters
