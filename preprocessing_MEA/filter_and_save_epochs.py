@@ -13,12 +13,14 @@ from tqdm import tqdm
 
 from utils import create_raw_object
 
+# CONFIGURATION
+DESIRED_SFREQ = 2000
 mne.set_log_level('WARNING')
-
+main_folder = "D:\MEA DCBUN vs UN\Data and Notes\Data\sorted MEA data"
+output_path = 'D:\RANSAC comparison\Intracortical\Data\Preprocessed'
 
 
 # Main loop to iterate over experiment folders
-main_folder = "D:\MEA DCBUN vs UN\Data and Notes\Data\sorted MEA data"
 experiment_folders = [f.path for f in os.scandir(main_folder) if f.is_dir()]
 
 for experiment_folder in tqdm(experiment_folders, position=0, desc = 'Experiment', leave=True):
@@ -85,8 +87,13 @@ for experiment_folder in tqdm(experiment_folders, position=0, desc = 'Experiment
     raw.notch_filter([50, 100, 150, 200], filter_length='auto', notch_widths=2, method='fir', n_jobs=-1)
     raw.filter(1, 200, l_trans_bandwidth=1, h_trans_bandwidth=10, method='fir', n_jobs=-1)
 
-    epochs = mne.Epochs(raw, np.int64(np.rint(events)), event_id, tmin = -0.2, tmax = 0.5, detrend = None, preload=False) # Preload to false to reduce risk of memory errors
+    epochs = mne.Epochs(raw, np.int64(np.rint(events)), event_id, tmin=-0.2, tmax=0.5, detrend=1, baseline=(-0.2, 0), preload=False) # Preload to false to reduce risk of memory errors
     
-    epochs.save(f'D:\MEA DCBUN vs UN\Data and Notes\Data\Epochs\{folder}-epo.fif', fmt='double')
+    # Decimation
+    decim = round(epochs.info['sfreq'] / DESIRED_SFREQ)
+    epochs.decimate(decim=decim, verbose=True)
+    print(f'Decimated to {raw.info["sfreq"]/decim} Hz with a factor of {decim}.')
+    
+    epochs.save(os.path.join(output_path, f'{folder}-epo.fif'), fmt='double')
      
     del raw, data_continous

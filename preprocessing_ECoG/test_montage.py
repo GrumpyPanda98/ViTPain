@@ -23,8 +23,15 @@ sfreq = streams['Wav1'].fs
 # Create MNE Raw object with correct channel names
 ch_names = [str(chan) for chan in streams['Wav1'].channel]  # Convert channel numbers to strings
 
+xa = 0.001
+ya = 0.001
+xb = -0.015
+yb = 0
+
 montage_positions = [(7,0,0), (7,1,0), (7,2,0), (7,3,0), (6,0,0), (6,1,0), (6,2,0), (6,3,0), (5,0,0), (5,1,0), (5,2,0), (5,3,0), (4,0,0), (4,1,0), (4,2,0), (4,3,0), 
                      (3,3,0), (3,2,0), (3,1,0), (3,0,0), (2,3,0), (2,2,0), (2,1,0), (2,0,0), (1,3,0), (1,2,0), (1,1,0), (1,0,0), (0,3,0), (0,2,0), (0,1,0), (0,0,0)]
+# Modify each tuple in the list
+montage_positions = [(x * xa+xb, y * ya+yb, z) for x, y, z in montage_positions]
 
 # 0,0,0	 1,0,0	2,0,0	3,0,0	4,0,0	5,0,0	6,0,0	7,0,0
 # 0,1,0	 1,1,0	2,1,0	3,1,0	4,1,0	5,1,0	6,1,0	7,1,0
@@ -37,8 +44,9 @@ montage_positions = [(7,0,0), (7,1,0), (7,2,0), (7,3,0), (6,0,0), (6,1,0), (6,2,
 # 32	28	24	20	13	9	5	1
 
 
+
 # Create MNE info object
-info = mne.create_info(ch_names=ch_names, sfreq=sfreq, ch_types='eeg')
+info = mne.create_info(ch_names=ch_names, sfreq=sfreq, ch_types='ecog')
 
 montage = mne.channels.make_dig_montage(ch_pos=dict(zip(ch_names, montage_positions)), coord_frame='unknown')
 info.set_montage(montage)
