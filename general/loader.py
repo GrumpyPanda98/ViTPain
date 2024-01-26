@@ -40,7 +40,7 @@ def load_mat():
         ctypes.windll.user32.MessageBoxW(0, "Please select the correct file path", "Path not found")
         
 
-def tdt_to_mne(path, stream_id=str, onset_id=str, ch_types='eeg', electrode_type = None):
+def tdt_to_mne(path, stream_id=str, onset_id=str, ch_types='eeg', electrode_type = None, scale=False):
     """
     Convert TDT data to MNE Raw object.
 
@@ -90,27 +90,23 @@ def tdt_to_mne(path, stream_id=str, onset_id=str, ch_types='eeg', electrode_type
     
     if electrode_type == 'ecog':
         # Create MNE Raw object with correct channel names
-        ch_names = [str(chan) for chan in streams['Wav1'].channel]  # Convert channel numbers to strings
+        ch_names = [str(chan) for chan in streams[stream_id].channel]  # Convert channel numbers to strings
 
-        # xa = 0.001
-        # ya = 0.001
-        # xb = -0.015
-        # yb = 0
+
         
-        xa = 1
-        ya = 1
-        xb = 0
-        yb = 0
+
 
 
         montage_positions = [(7,0,0), (7,1,0), (7,2,0), (7,3,0), (6,0,0), (6,1,0), (6,2,0), (6,3,0), (5,0,0), (5,1,0), (5,2,0), (5,3,0), (4,0,0), (4,1,0), (4,2,0), (4,3,0), 
                              (3,3,0), (3,2,0), (3,1,0), (3,0,0), (2,3,0), (2,2,0), (2,1,0), (2,0,0), (1,3,0), (1,2,0), (1,1,0), (1,0,0), (0,3,0), (0,2,0), (0,1,0), (0,0,0)]
+    if scale:
+        xa = 0.001
+        ya = 0.001
+        xb = -0.015
+        yb = 0
+        
         # Modify each tuple in the list
         montage_positions = [(x * xa+xb, y * ya+yb, z) for x, y, z in montage_positions]
-    
-    if electrode_type == 'mea':
-        montage_ysize = 4 if len(ch_names) == 16 else 8
-        montage_positions = [(x, y, 0) for x in range(4) for y in range(montage_ysize)]
 
     # Create MNE info object
     info = mne.create_info(ch_names=ch_names, sfreq=sfreq, ch_types=ch_types)

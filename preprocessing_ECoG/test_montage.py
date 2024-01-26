@@ -23,9 +23,14 @@ sfreq = streams['Wav1'].fs
 # Create MNE Raw object with correct channel names
 ch_names = [str(chan) for chan in streams['Wav1'].channel]  # Convert channel numbers to strings
 
-xa = 0.001
-ya = 0.001
-xb = -0.015
+# xa = 0.001
+# ya = 0.001
+# xb = -0.015
+# yb = 0
+
+xa = 1
+ya = 1
+xb = 0
 yb = 0
 
 montage_positions = [(7,0,0), (7,1,0), (7,2,0), (7,3,0), (6,0,0), (6,1,0), (6,2,0), (6,3,0), (5,0,0), (5,1,0), (5,2,0), (5,3,0), (4,0,0), (4,1,0), (4,2,0), (4,3,0), 

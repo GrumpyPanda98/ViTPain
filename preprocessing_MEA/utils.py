@@ -59,3 +59,37 @@ def plot_evoked_responses(raw, events, event_id, folder):
     fig.tight_layout()
     plt.savefig(f'{folder}_EvokedResponses.svg')
     plt.close()
+    
+def montage_remap(exp, scale=False):
+    
+    if exp in ('Experiment 09', 'Experiment 13'): # Position 1
+        montage_positions = [(0,0,0), (1,0,0), (2,0,0), (3,0,0), (0,1,0), (1,1,0), (2,1,0), (3,1,0), 
+                             (0,2,0), (1,2,0), (2,2,0), (3,2,0), (0,3,0), (1,3,0), (2,3,0), (3,3,0)]
+        
+    if exp in ('Experiment 10', 'Experiment 11', 'Experiment 15'): # Position 2
+        montage_positions = [(3,3,0), (2,3,0), (1,3,0), (0,3,0), (3,2,0), (2,2,0), (1,2,0), (0,2,0), 
+                             (3,1,0), (2,1,0), (1,1,0), (0,1,0), (3,0,0), (2,0,0), (1,0,0), (0,0,0)]
+        
+    if exp == 'Experiment 12': # Position 2 32 ch
+        montage_positions = [(7,3,0), (6,3,0), (5,3,0), (4,3,0), (3,3,0), (2,3,0), (1,3,0), (0,3,0), 
+                             (7,2,0), (6,2,0), (5,2,0), (4,2,0), (3,2,0), (2,2,0), (1,2,0), (0,2,0), 
+                             (7,1,0), (6,1,0), (5,1,0), (4,1,0), (3,1,0), (2,1,0), (1,1,0), (0,1,0), 
+                             (7,0,0), (6,0,0), (5,0,0), (4,0,0), (3,0,0), (2,0,0), (1,0,0), (0,0,0)]
+        
+    if exp in ('Experiment 16', 'Experiment 19'): # Position 3
+       montage_positions = [(3,0,0), (3,1,0), (3,2,0), (3,3,0), (2,0,0), (2,1,0), (2,2,0), (2,3,0), 
+                            (1,0,0), (1,1,0), (1,2,0), (1,3,0), (0,0,0), (0,1,0), (0,2,0), (0,3,0)]
+    
+    if exp == 'Experiment 14': # Position 4
+        montage_positions = [(0,3,0), (0,2,0), (0,1,0), (0,0,0), (1,3,0), (1,2,0), (1,1,0), (1,0,0), 
+                             (2,3,0), (2,2,0), (2,1,0), (2,0,0), (3,3,0), (3,2,0), (3,1,0), (3,0,0)]
+    if scale:    
+        xa = 0.001
+        ya = 0.001
+        xb = -0.015
+        yb = 0    
+    
+        # Modify each tuple in the list
+        montage_positions = [(x * xa+xb, y * ya+yb, z) for x, y, z in montage_positions]
+    return montage_positions
+    

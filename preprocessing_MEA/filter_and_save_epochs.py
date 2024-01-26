@@ -10,14 +10,15 @@ import numpy as np
 import mne
 import mat73
 from tqdm import tqdm
+import gc # Garbage collection module
 
-from utils import create_raw_object
+from utils import create_raw_object, montage_remap
 
 # CONFIGURATION
 DESIRED_SFREQ = 2000
 mne.set_log_level('WARNING')
-main_folder = "D:\MEA DCBUN vs UN\Data and Notes\Data\sorted MEA data"
-output_path = 'D:\RANSAC comparison\Intracortical\Data\Preprocessed'
+main_folder = r'D:\MEA DCBUN vs UN\Data and Notes\Data\sorted MEA data'
+output_path = r'D:\RANSAC comparison\Intracortical\Data\Preprocessed'
 
 
 # Main loop to iterate over experiment folders
@@ -33,13 +34,9 @@ for experiment_folder in tqdm(experiment_folders, position=0, desc = 'Experiment
     fs = float(data['fs'])
     stim_times = data['stimTimes']
     del data
+    gc.collect()  # Manual garbage collection
     
-    ch_names = [f'chan{i}' for i in range(data_continous.shape[0])]
-
-
-    montage_ysize = 4 if len(ch_names) == 16 else 8
-    montage_positions = [(x, y, 0) for x in range(4) for y in range(montage_ysize)]
-
+    ch_names = [f'{i}' for i in range(data_continous.shape[0])]
 
 
     if folder == 'Experiment 09':
@@ -81,6 +78,9 @@ for experiment_folder in tqdm(experiment_folders, position=0, desc = 'Experiment
     events = np.concatenate((events_cutaneous, events_motor), axis=0)
     events = events[events[:, 0].argsort()]
     event_id = {'Cutaneous': 1, 'Motor': 2}
+    
+    # Setup montage positions using remapper
+    montage_positions = montage_remap(folder)
 
     raw = create_raw_object(data_continous, ch_names, fs, montage_positions)
     
@@ -94,6 +94,7 @@ for experiment_folder in tqdm(experiment_folders, position=0, desc = 'Experiment
     epochs.decimate(decim=decim, verbose=True)
     print(f'Decimated to {raw.info["sfreq"]/decim} Hz with a factor of {decim}.')
     
-    epochs.save(os.path.join(output_path, f'{folder}-epo.fif'), fmt='double')
+    epochs.save(os.path.join(output_path, f'{folder}-epo.fif'), fmt='double', overwrite = True)
      
     del raw, data_continous
+    gc.collect()  # Manual garbage collection
