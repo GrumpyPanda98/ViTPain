@@ -59,6 +59,12 @@ for file in tqdm(os.listdir(base_path), position=0, desc = 'Experiment', leave=T
         channel_types_dict = {ch_name: 'eeg' for ch_name in epochs.ch_names}
         epochs.set_channel_types(channel_types_dict)
 
+    # Scaling the data within the Epochs object. Patch solution... -->  Have to go back and rescale the raw dataset
+    if ch_type == 'Epidural':
+        # Access the data, scale it, and then set it back
+        data = epochs.get_data()  # This extracts the data as a numpy array
+        scaled_data = data * 1e-6  # Scale the data
+        epochs._data = scaled_data  # Set the scaled data back to the epochs object
 
     # Apply Ransac autoreject method
     rsc = Ransac(n_jobs=6, n_resample=50 , min_channels=0.125, min_corr=0.85, unbroken_time=0.4, verbose=False)
