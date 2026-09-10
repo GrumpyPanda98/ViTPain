@@ -1,49 +1,39 @@
-# ViTPain — Intracranial EEG Analysis
+# Intracranial EEG Analysis
 
-Exploratory Python code for analysing cortical responses to peripheral nerve stimulation, with preprocessing, channel-quality assessment, feature extraction, and classical machine-learning experiments.
+Research scripts for studying cortical responses to peripheral nerve stimulation using micro-ECoG and microelectrode-array recordings. The work covers preprocessing, channel-quality assessment, response features, and exploratory machine learning.
 
-The repository began with a vision-transformer direction, which explains its name. **The current code contains no ViT model or training pipeline.** The implemented work is MNE-based electrophysiology analysis and random-forest/clustering experiments. Transformer development remains a future milestone.
+**Completed exploratory project.** This repository preserves the analysis code and historical diagnostic figures. It contains MNE-based electrophysiology analysis, random forests, and clustering experiments.
 
-## Repository map
+## Research focus
+
+- Comparing channel-quality approaches, including RANSAC and AutoReject, across epidural and intracortical recordings.
+- Examining evoked responses, spectral activity, response latency, and amplitude.
+- Exploring whether features of the recordings distinguish stimulation conditions.
+
+The experiments concern stimulation-related activity and nociception under anaesthesia. The analyses do not establish conscious pain or a validated clinical biomarker.
+
+## Repository contents
 
 | Directory | Contents |
 | --- | --- |
 | `general/` | MATLAB and TDT loading helpers |
 | `preprocessing_ECoG/` | Filtering, epoch creation, RANSAC, and montage exploration |
-| `preprocessing_MEA/` | Microelectrode-array preprocessing and historical diagnostic plots |
-| `feature_extraction/` | Response latency and mean-amplitude analysis |
-| `ml/` | Random forests and clustering experiments |
-| `tests/` | Small synthetic checks; no animal recordings required |
+| `preprocessing_MEA/` | Microelectrode-array preprocessing and historical diagnostic figures |
+| `feature_extraction/` | Latency and mean-amplitude analyses |
+| `ml/` | Random-forest and clustering experiments |
 
-## Setup and checks
+## Reading and running the code
 
-Python 3.11 is the verification baseline. From the repository root:
+The scripts retain experiment-specific paths, channel maps, and processing choices. Raw recordings are not included. Review those assumptions before adapting an analysis to another dataset; some historical scripts start processing when run or imported.
+
+The random-forest experiment splits trials within each animal before combining the partitions. Its accuracy therefore describes an exploratory within-animal baseline, rather than generalisation to unseen animals.
+
+Dependencies are listed in `requirements.txt`; Python 3.11 was used for the small software checks:
 
 ```sh
-python -m venv .venv
-# Windows PowerShell: .venv\Scripts\Activate.ps1
-# macOS/Linux: source .venv/bin/activate
 python -m pip install -r requirements.txt
 python -m unittest discover -s tests -v
 python -m ml.random_forest --help
 ```
 
-To run the legacy random-forest baseline against your own compatible MNE epochs:
-
-```sh
-python -m ml.random_forest --data-dir path/to/epochs
-```
-
-The default experiment names and file convention are shown in `--help`. This command trains a model; the unit checks do not. Other historical scripts still contain experiment-specific paths and may execute processing when run or imported. Review their input/output paths, channel mappings, units, and parameters first. Raw recordings are not included, and the saved figures alone do not reproduce an analysis.
-
-## Research scope
-
-This work concerns stimulation-related activity and nociception under anaesthesia. It does not establish conscious pain or a validated clinical biomarker.
-
-The legacy random-forest script splits trials **within each animal**, then combines those partitions. Its accuracy is a within-animal exploratory baseline, not evidence of generalisation to unseen animals. The split is preserved in this cleanup; subject-held-out evaluation is a separate milestone before any generalisation claim.
-
-## Next steps
-
-The [roadmap](ROADMAP.md) separates the current analysis code from planned data configuration, animal-level evaluation, and transformer modelling. The longer-term modelling direction is a dual-branch approach combining spectrograms and raw intracranial EEG; it is not an implemented capability of this repository.
-
-[Nickolaj Ajay Atchuthan](https://atchuthan.com/)
+The checks use synthetic inputs and cover loader behaviour and the random-forest helper. They do not reproduce the experimental results.
