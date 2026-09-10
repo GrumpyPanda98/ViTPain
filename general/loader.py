@@ -40,16 +40,16 @@ def load_mat():
         ctypes.windll.user32.MessageBoxW(0, "Please select the correct file path", "Path not found")
         
 
-def tdt_to_mne(path, stream_id=str, onset_id=str, ch_types='eeg', electrode_type = None, scale=False):
+def tdt_to_mne(path, stream_id=None, onset_id=None, ch_types='eeg', electrode_type = None, scale=False):
     """
     Convert TDT data to MNE Raw object.
 
     Parameters
     ----------
     stream_id : str, optional
-        The ID of the TDT stream. The default is str.
+        The ID of the TDT stream; must be supplied explicitly.
     onset_id : str, optional
-        The ID of the TDT onset. The default is str.
+        The ID of the TDT onset epoc; must be supplied explicitly.
     ch_types : str, optional
         The type of channels, e.g., 'eeg'. The default is 'eeg'.
 
@@ -65,6 +65,15 @@ def tdt_to_mne(path, stream_id=str, onset_id=str, ch_types='eeg', electrode_type
     import tdt
     import mne
     import numpy as np
+
+    if not isinstance(stream_id, str) or not stream_id:
+        raise ValueError("stream_id must name a TDT stream")
+    if not isinstance(onset_id, str) or not onset_id:
+        raise ValueError("onset_id must name a TDT onset epoc")
+    if electrode_type not in (None, 'ecog'):
+        raise ValueError("electrode_type must be None or 'ecog'")
+    if scale and electrode_type != 'ecog':
+        raise ValueError("Montage scaling requires electrode_type='ecog'")
 
     # Load TDT data
     data = tdt.read_block(path)
@@ -88,6 +97,7 @@ def tdt_to_mne(path, stream_id=str, onset_id=str, ch_types='eeg', electrode_type
     # Create MNE Raw object with correct channel names
     ch_names = [str(chan) for chan in streams[stream_id].channel]  # Convert channel numbers to strings
     
+    montage_positions = None
     if electrode_type == 'ecog':
         # Create MNE Raw object with correct channel names
         ch_names = [str(chan) for chan in streams[stream_id].channel]  # Convert channel numbers to strings
@@ -111,9 +121,11 @@ def tdt_to_mne(path, stream_id=str, onset_id=str, ch_types='eeg', electrode_type
     # Create MNE info object
     info = mne.create_info(ch_names=ch_names, sfreq=sfreq, ch_types=ch_types)
     
-    montage = mne.channels.make_dig_montage(ch_pos=dict(zip(ch_names, montage_positions)))
-    
-    info.set_montage(montage)
+    if montage_positions is not None:
+        if len(ch_names) != len(montage_positions):
+            raise ValueError("The built-in ECoG montage requires exactly 32 channels")
+        montage = mne.channels.make_dig_montage(ch_pos=dict(zip(ch_names, montage_positions)))
+        info.set_montage(montage)
     
     # Create MNE Raw object
     raw = mne.io.RawArray(raw_data, info)

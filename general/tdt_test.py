@@ -23,7 +23,7 @@ epocs = data.epocs
 raw_data = streams['Wav1'].data  # Replace 'YourStreamName' with the actual stream name
 sfreq = streams['Wav1'].fs  # Sampling frequency of the stream
 
-events = epocs[PC0_].onset * sfreq
+events = epocs['PC0_'].onset * sfreq
 
 events_mne = np.column_stack((events, np.zeros_like(events), np.ones_like(events)))
 
