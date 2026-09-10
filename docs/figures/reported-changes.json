@@ -1,0 +1,25 @@
+{
+  "source": "User-supplied EMBC 2025 V6 manuscript, Table II",
+  "profiles": [
+    "Epidural",
+    "Intracortical",
+    "Noise only"
+  ],
+  "percent_changes": {
+    "Standard deviation": [
+      -29.3,
+      -1.6,
+      12.0
+    ],
+    "Variance": [
+      -50.0,
+      -3.2,
+      25.6
+    ],
+    "Correlation": [
+      17.6,
+      25.8,
+      16.3
+    ]
+  }
+}

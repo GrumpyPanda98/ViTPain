@@ -1,2 +1,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Retain original figure sources and generated SVG geometry without conversion.
+docs/figures/*.pdf -text
+docs/figures/*.svg -text -whitespace linguist-generated=true
